@@ -3,8 +3,10 @@ using DataBaseLayer.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ReposatoryLayer.DBContext;
+using ReposatoryLayer.Services;
 using System;
 using System.Linq;
+using System.Security.Claims;
 
 namespace FundooNotes.Controllers
 {
@@ -14,10 +16,12 @@ namespace FundooNotes.Controllers
     {
         FundooContext fundooContext;
         IUserBL userBL;
+        StringCipher stringCipher;
         public UserController(FundooContext fundoo, IUserBL userBL)
         {
             this.fundooContext = fundoo;
             this.userBL = userBL;
+
         }
 
         [HttpPost("Register")]
@@ -39,15 +43,17 @@ namespace FundooNotes.Controllers
         {
             try
             {
-                var userdata = fundooContext.Users.FirstOrDefault(u => u.Email == email && u.Password == password);
+
+                var userdata = fundooContext.Users.FirstOrDefault(u => u.Email == email);
+                string Password = StringCipher.DecodeFrom64(userdata.Password);
                 if (userdata == null)
                 {
-                    return this.BadRequest(new { success = false, message = $"email and password is invalid" });
+                    return this.BadRequest(new { success = false, message = $"Email-ID and Password is incorrect" });
 
                 }
 
-                var result = this.userBL.LoginUser(email, password);
-                return this.Ok(new { success = true, message = $"login successfull {result}" });
+                string result = this.userBL.LoginUser(email, Password);
+                return this.Ok(new { success = true, message = $"Login Successfull {result}", Token = result });
 
             }
             catch (Exception ex)
@@ -68,11 +74,11 @@ namespace FundooNotes.Controllers
 
                     {
                         success = true,
-                        message = $"mail sent sucessfully" + $"token: {Result}"
+                        message = $"Mail Send Sucessfully" + $"token: {Result}"
                     });
                 }
 
-                return this.BadRequest(new { success = false, message = $"mail not sent" });
+                return this.BadRequest(new { success = false, message = $"Mail not Send" });
             }
             catch (Exception ex)
             {
@@ -80,6 +86,7 @@ namespace FundooNotes.Controllers
                 throw ex;
             }
         }
+
         [Authorize]
         [HttpPut("ChangePassword")]
 
@@ -91,8 +98,8 @@ namespace FundooNotes.Controllers
                 int UserID = Int32.Parse(userid.Value);
                 var result = fundooContext.Users.Where(u => u.Userid == UserID).FirstOrDefault();
                 string Email = result.Email.ToString();
-
-                bool res = userBL.ChangePassword(Email, changePassward);//email.changepass
+                //Change Passwaord
+                bool res = userBL.ChangePassword(Email, changePassward);
                 if (res == false)
                 {
                     return this.BadRequest(new { success = false, message = "Enter Valid Password" });
@@ -106,5 +113,6 @@ namespace FundooNotes.Controllers
             }
 
         }
+
     }
 }

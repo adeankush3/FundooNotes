@@ -6,27 +6,32 @@ using ReposatoryLayer.DBContext;
 using ReposatoryLayer.Entities;
 using ReposatoryLayer.Interfaces;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
 
+
+
+
 namespace ReposatoryLayer.Services
 {
     public class UserRL : IUserRL
     {
-        FundooContext fundoo; // used field here
-        public IConfiguration Configuration { get; set; }
+        FundooContext fundoo; 
+        public IConfiguration Configuration { get; }
+
+
         public UserRL(FundooContext fundoo, IConfiguration configuration)
         {
             this.fundoo = fundoo;
             this.Configuration = configuration;
         }
-        /// <summary>
-        /// Used method of Add user
-        /// </summary>
-        /// <param name="user"></param>
+       
+        //Add User
+        
         public void AddUser(UserModel user)
         {
             try
@@ -34,9 +39,8 @@ namespace ReposatoryLayer.Services
                 User userdata = new User();
                 userdata.FirstName = user.FirstName;
                 userdata.Lastname = user.Lastname;
-                userdata.CreatedDate = DateTime.Now;
                 userdata.Email = user.Email;
-                userdata.Password = user.Password;
+                userdata.Password = StringCipher.EncodePasswordToBase64(user.Password);
                 userdata.Address = user.Address;
                 fundoo.Add(userdata);
                 fundoo.SaveChanges();
@@ -48,20 +52,17 @@ namespace ReposatoryLayer.Services
             }
         }
 
-        /// <summary>
-        /// used method of Login user
-        /// </summary>
-        /// <param name="email"></param>
-        /// <param name="password"></param>
-        /// <returns></returns>
-
+        //Login User
         public string LoginUser(string email, string password)
         {
 
             try
             {
-                var result = fundoo.Users.FirstOrDefault(u => u.Email == email && u.Password == password);
-                if (result == null)
+
+                var result = fundoo.Users.Where(u => u.Email == email).FirstOrDefault();
+                string pass = StringCipher.DecodeFrom64(result.Password);
+
+                if (pass != password)
                 {
                     return null;
                 }
@@ -74,8 +75,9 @@ namespace ReposatoryLayer.Services
             }
         }
 
-        private string GetJWTToken(string email, object userId)
+        private static string GetJWTToken(string email, int userID)
         {
+            // generate token
             var tokenHandler = new JwtSecurityTokenHandler();
             var tokenKey = Encoding.ASCII.GetBytes("THIS_IS_MY_KEY_TO_GENERATE_TOKEN");
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -83,7 +85,7 @@ namespace ReposatoryLayer.Services
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim("email", email),
-                    new Claim("Userid",userId.ToString())
+                    new Claim("Userid",userID.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddHours(1),
 
@@ -95,6 +97,7 @@ namespace ReposatoryLayer.Services
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
+        //Forgot PassWord
         public bool ForgotPassword(string email)
         {
             try
@@ -155,7 +158,7 @@ namespace ReposatoryLayer.Services
                 }
             }
         }
-
+        //Generate Token
         public string GenerateToken(string email)
         {
             if (email == null)
@@ -180,7 +183,9 @@ namespace ReposatoryLayer.Services
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
-        //method to encode the password
+
+
+        //Method to Encode the Password
 
         public static string EncryptPassword(string password)
         {
@@ -206,7 +211,7 @@ namespace ReposatoryLayer.Services
             }
         }
 
-
+        //Change Password
         public bool ChangePassword(string Email, ChangePasswardModel changePassward)
         {
             try

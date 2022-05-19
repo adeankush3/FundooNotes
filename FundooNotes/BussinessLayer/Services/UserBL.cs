@@ -26,7 +26,6 @@ namespace BussinessLayer.Services
                 throw;
             }
         }
-
         public string LoginUser(string email, string password)
         {
 
@@ -53,6 +52,7 @@ namespace BussinessLayer.Services
             }
 
         }
+
         public bool ChangePassword(string Email, ChangePasswardModel changePassward)
         {
             try

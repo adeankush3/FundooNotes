@@ -8,7 +8,7 @@ namespace ReposatoryLayer.Services
 {
     public class StringCipher
     {
-
+        //Encoded
         public static string EncodePasswordToBase64(string password)
         {
             try
@@ -24,7 +24,7 @@ namespace ReposatoryLayer.Services
             }
         }
 
-        //this function Convert to Decord your Password
+        //Decoded
         public static string DecodeFrom64(string encodedData)
         {
             System.Text.UTF8Encoding encoder = new System.Text.UTF8Encoding();
