@@ -1,5 +1,6 @@
 ﻿using BussinessLayer.Interfaces;
 using DataBaseLayer.Users;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ReposatoryLayer.DBContext;
 using System;
@@ -54,6 +55,56 @@ namespace FundooNotes.Controllers
 
                 throw ex;
             }
+        }
+        [HttpPost("ForgotPassword/{email}")]
+        public ActionResult ForgotPassword(string email)
+        {
+            try
+            {
+                var Result = this.userBL.ForgotPassword(email);
+                if (Result != false)
+                {
+                    return this.Ok(new
+
+                    {
+                        success = true,
+                        message = $"mail sent sucessfully" + $"token: {Result}"
+                    });
+                }
+
+                return this.BadRequest(new { success = false, message = $"mail not sent" });
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+        [Authorize]
+        [HttpPut("ChangePassword")]
+
+        public ActionResult ChangePassword(ChangePasswardModel changePassward)
+        {
+            try
+            {
+                var userid = User.Claims.FirstOrDefault(x => x.Type.ToString().Equals("userid", StringComparison.InvariantCultureIgnoreCase));
+                int UserID = Int32.Parse(userid.Value);
+                var result = fundooContext.Users.Where(u => u.Userid == UserID).FirstOrDefault();
+                string Email = result.Email.ToString();
+
+                bool res = userBL.ChangePassword(Email, changePassward);//email.changepass
+                if (res == false)
+                {
+                    return this.BadRequest(new { success = false, message = "Enter Valid Password" });
+                }
+                return this.Ok(new { success = true, message = "Password changed Successfully" });
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
         }
     }
 }
