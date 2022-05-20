@@ -16,7 +16,7 @@ namespace BussinessLayer.Services
         {
             this.noteRL = noteRL;
         }
-
+        //Add Note
         public async Task AddNote(NotesPostModel notesPostModel, int UserID)
         {
 
@@ -30,7 +30,7 @@ namespace BussinessLayer.Services
                 throw;
             }
         }
-
+        //Archive
         public async Task ArchiveNote(int userId, int noteId)
         {
 
@@ -44,7 +44,7 @@ namespace BussinessLayer.Services
                 throw ex;
             }
         }
-
+        //Change Colour
         public async Task ChangeColour(int userId, int noteId, string color)
         {
             try
@@ -58,7 +58,7 @@ namespace BussinessLayer.Services
             }
 
         }
-
+        //Delete Note
         public Task DeleteNote(int userId, int noteId)
         {
 
@@ -72,7 +72,7 @@ namespace BussinessLayer.Services
                 throw;
             }
         }
-
+        //update Note
         public async Task<Note> UpdateNote(int userId, int noteId, NoteUpdateModel noteUpdateModel)
         {
             try

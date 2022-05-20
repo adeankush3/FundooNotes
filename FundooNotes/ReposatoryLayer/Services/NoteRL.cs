@@ -21,6 +21,7 @@ namespace ReposatoryLayer.Services
             this.fundoo = fundooContext;
             this.Configuration = configuration;
         }
+        //Add Note
         public async Task AddNote(NotesPostModel notesPostModel, int Userid)
         {
             try
@@ -45,7 +46,7 @@ namespace ReposatoryLayer.Services
                 throw ex;
             }
         }
-
+        //UpdateNote
         public async Task<Note> UpdateNote(int userId, int noteId, NoteUpdateModel noteUpdateModel)
         {
             try
@@ -73,7 +74,7 @@ namespace ReposatoryLayer.Services
             }
         }
 
-        //Delete
+        //Delete Note
         public async Task DeleteNote(int noteId, int userId)
         {
 

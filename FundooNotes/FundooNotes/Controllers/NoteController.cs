@@ -126,7 +126,7 @@ namespace FundooNotes.Controllers
         }
 
        
-        /// Archive Notes
+        // Archive Notes
         
         [Authorize]
         [HttpPut("ArchiveNote/{noteId}")]
