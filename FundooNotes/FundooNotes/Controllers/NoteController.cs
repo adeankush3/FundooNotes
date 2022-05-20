@@ -3,7 +3,9 @@ using DataBaseLayer.Notes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ReposatoryLayer.DBContext;
+using ReposatoryLayer.Entities;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -22,9 +24,7 @@ namespace FundooNotes.Controllers
         {
             this.fundooContext = fundoo;
             this.noteBL = noteBL;
-        }
-
-        
+        }       
         // Add Notes
         [Authorize]
         [HttpPost("AddNote")]
@@ -43,9 +43,7 @@ namespace FundooNotes.Controllers
                 throw ex;
             }
         }
-
-        
-        //Update Notes
+       //Update Notes
         [Authorize]
         [HttpPut("Update/{noteId}")]
         public async Task<ActionResult> UpdateNote(int noteId, NoteUpdateModel noteUpdateModel)
@@ -68,11 +66,8 @@ namespace FundooNotes.Controllers
 
                 throw ex;
             }
-        }
-
-       
-        //Delete the Notes
-       
+        }      
+        //Delete the Notes      
         [Authorize]
         [HttpDelete("Delete/{noteId}")]
         public async Task<ActionResult> DeleteNote(int noteId)
@@ -95,11 +90,8 @@ namespace FundooNotes.Controllers
 
                 throw ex;
             }
-        }
-
-      
-        //Change colour of the Notes
-        
+        }     
+        //Change colour of the Notes        
         [Authorize]
         [HttpPut("ChangeColour/{noteId}/{colour}")]
         public async Task<ActionResult> ChangeColour(int noteId, string colour)
@@ -123,11 +115,8 @@ namespace FundooNotes.Controllers
 
                 throw ex;
             }
-        }
-
-       
-        // Archive Notes
-        
+        }      
+        // Archive Notes       
         [Authorize]
         [HttpPut("ArchiveNote/{noteId}")]
         public async Task<ActionResult> IsArchieveNote(int noteId)
@@ -150,5 +139,96 @@ namespace FundooNotes.Controllers
                 throw ex;
             }
         }
+        //Remainder Notes
+        [Authorize]
+        [HttpPut("remainderNote/{noteId}/{remainder}")]
+        public async Task<ActionResult> RemainderNote(int noteId, DateTime remainder)
+        {
+            try
+            {
+                var userid = User.Claims.FirstOrDefault(x => x.Type.ToString().Equals("userID", StringComparison.InvariantCultureIgnoreCase));
+                int userId = Int32.Parse(userid.Value);
+
+                var note = fundooContext.Notes.FirstOrDefault(u => u.Userid == userId && u.NoteID == noteId);
+                if (note == null)
+                {
+                    return this.BadRequest(new { success = false, message = "Sorry !! Note does't Exist" });
+                }
+                await this.noteBL.Remainder(userId, noteId, remainder);
+                return this.Ok(new { success = true, message = "Remainder Sets Successfully!!!" });
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }      
+        // Trash Notes     
+        [Authorize]
+        [HttpPut("Trash/{noteId}")]
+        public async Task<ActionResult> IsTrash(int noteId)
+        {
+            try
+            {
+                var userid = User.Claims.FirstOrDefault(x => x.Type.ToString().Equals("userID", StringComparison.InvariantCultureIgnoreCase));
+                int userId = Int32.Parse(userid.Value);
+
+                var note = fundooContext.Notes.FirstOrDefault(u => u.Userid == userId && u.NoteID == noteId);
+                if (note == null)
+                {
+                    return this.BadRequest(new { success = false, message = " Sorry!!! Failed to Trash Note" });
+                }
+                await this.noteBL.Trash(userId, noteId);
+                return this.Ok(new { success = true, message = "Trash added successfully!!!" });
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }   
+        // Pin notes        
+        [Authorize]
+        [HttpPut("Pin/{noteId}")]
+        public async Task<ActionResult> IsPin(int noteId)
+        {
+            try
+            {
+                var userid = User.Claims.FirstOrDefault(x => x.Type.ToString().Equals("userID", StringComparison.InvariantCultureIgnoreCase));
+                int userId = Int32.Parse(userid.Value);
+
+                var note = fundooContext.Notes.FirstOrDefault(u => u.Userid == userId && u.NoteID == noteId);
+                if (note == null)
+                {
+                    return this.BadRequest(new { success = false, message = " Sorry!!! Failed to Pin note" });
+                }
+                await this.noteBL.Pin(userId, noteId);
+                return this.Ok(new { success = true, message = "Pin Added successfully!!!" });
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        // Get All notes
+       
+        [Authorize]
+        [HttpGet("GetAllNotes")]
+        public async Task<ActionResult> GetAllNotes()
+        {
+            try
+            {
+                var userid = User.Claims.FirstOrDefault(x => x.Type.ToString().Equals("userID", StringComparison.InvariantCultureIgnoreCase));
+                int userId = Int32.Parse(userid.Value);
+                List<Note> result = new List<Note>();
+                result = await this.noteBL.GetAllNotes(userId);
+                return this.Ok(new { success = true, message = $"Here is your all Notes", data = result });
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }

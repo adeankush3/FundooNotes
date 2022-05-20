@@ -144,5 +144,90 @@ namespace ReposatoryLayer.Services
                 throw;
             }
         }
+        public async Task Remainder(int userId, int noteId, DateTime remainder)
+        {
+
+            try
+            {
+                var note = fundoo.Notes.FirstOrDefault(u => u.Userid == userId && u.NoteID == noteId);
+                if (note != null)
+                {
+                    note.IsRemainder = true;
+                    note.Remainder = remainder;
+                }
+                await fundoo.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        public async Task Trash(int userId, int noteId)
+        {
+            try
+            {
+                var note = fundoo.Notes.FirstOrDefault(u => u.Userid == userId && u.NoteID == noteId);
+                if (note != null)
+                {
+                    if (note.IsTrash == true)
+                    {
+                        note.IsTrash = false;
+                    }
+                    if (note.IsTrash == false)
+                    {
+                        note.IsTrash = true;
+                    }
+                }
+                await fundoo.SaveChangesAsync();
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+
+        public async Task Pin(int userId, int noteId)
+        {
+            try
+            {
+                var note = fundoo.Notes.FirstOrDefault(u => u.Userid == userId && u.NoteID == noteId);
+                if (note != null)
+                {
+                    if (note.IsPin == true)
+                    {
+                        note.IsPin = false;
+                    }
+                    if (note.IsPin == false)
+                    {
+                        note.IsPin = true;
+                    }
+                }
+                await fundoo.SaveChangesAsync();
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+
+        public async Task<List<Note>> GetAllNotes(int userId)
+        {
+            try
+            {
+                return await fundoo.Notes.Where(u => u.Userid == userId).Include(u => u.user).ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
     }
 }

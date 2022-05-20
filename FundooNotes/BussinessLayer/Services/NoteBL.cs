@@ -84,7 +84,60 @@ namespace BussinessLayer.Services
 
                 throw;
             }
+        }
+        public async Task Remainder(int userId, int noteId, DateTime remainder)
+        {
+            try
+            {
+                await this.noteRL.Remainder(userId, noteId, remainder);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
 
         }
+        public Task<List<Note>> GetAllNotes(int userId)
+        {
+            try
+            {
+                return this.noteRL.GetAllNotes(userId);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public async Task Pin(int userId, int noteId)
+        {
+            try
+            {
+                await this.noteRL.Pin(userId, noteId);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+
+        public async Task Trash(int userId, int noteId)
+        {
+            try
+            {
+                await this.noteRL.Trash(userId, noteId);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+
     }
 }
