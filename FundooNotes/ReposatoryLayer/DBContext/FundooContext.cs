@@ -16,6 +16,7 @@ namespace ReposatoryLayer.DBContext
 
         public DbSet<User> Users { get; set; }
         public DbSet<Note> Notes { get; set; }
+        public DbSet<Labels> labels { get; set; }
 
 
         //Unique EmailId
