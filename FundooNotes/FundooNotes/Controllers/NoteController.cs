@@ -2,6 +2,9 @@
 using DataBaseLayer.Notes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
+using Newtonsoft.Json;
 using ReposatoryLayer.DBContext;
 using ReposatoryLayer.Entities;
 using System;
@@ -18,6 +21,9 @@ namespace FundooNotes.Controllers
         
         FundooContext fundooContext;
         INoteBL noteBL;
+
+        private readonly IDistributedCache distributedCache;
+        private readonly IMemoryCache memoryCache;
 
         // constructor
         public NoteController(FundooContext fundoo, INoteBL noteBL)
