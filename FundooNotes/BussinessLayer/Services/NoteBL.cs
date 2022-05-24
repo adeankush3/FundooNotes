@@ -16,7 +16,7 @@ namespace BussinessLayer.Services
         {
             this.noteRL = noteRL;
         }
-        //Add Note
+
         public async Task AddNote(NotesPostModel notesPostModel, int UserID)
         {
 
@@ -30,7 +30,7 @@ namespace BussinessLayer.Services
                 throw;
             }
         }
-        //Archive
+
         public async Task ArchiveNote(int userId, int noteId)
         {
 
@@ -44,7 +44,7 @@ namespace BussinessLayer.Services
                 throw ex;
             }
         }
-        //Change Colour
+
         public async Task ChangeColour(int userId, int noteId, string color)
         {
             try
@@ -58,7 +58,7 @@ namespace BussinessLayer.Services
             }
 
         }
-        //Delete Note
+
         public Task DeleteNote(int userId, int noteId)
         {
 
@@ -66,38 +66,13 @@ namespace BussinessLayer.Services
             {
                 return this.noteRL.DeleteNote(userId, noteId);
             }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-        //update Note
-        public async Task<Note> UpdateNote(int userId, int noteId, NoteUpdateModel noteUpdateModel)
-        {
-            try
-            {
-                return await this.noteRL.UpdateNote(userId, noteId, noteUpdateModel);
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-        public async Task Remainder(int userId, int noteId, DateTime remainder)
-        {
-            try
-            {
-                await this.noteRL.Remainder(userId, noteId, remainder);
-            }
             catch (Exception ex)
             {
 
                 throw ex;
             }
-
         }
+
         public Task<List<Note>> GetAllNotes(int userId)
         {
             try
@@ -125,6 +100,20 @@ namespace BussinessLayer.Services
 
         }
 
+        public async Task Remainder(int userId, int noteId, DateTime remainder)
+        {
+            try
+            {
+                await this.noteRL.Remainder(userId, noteId, remainder);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+
         public async Task Trash(int userId, int noteId)
         {
             try
@@ -139,5 +128,18 @@ namespace BussinessLayer.Services
 
         }
 
+        public async Task<Note> UpdateNote(int userId, int noteId, NoteUpdateModel noteUpdateModel)
+        {
+            try
+            {
+                return await this.noteRL.UpdateNote(userId, noteId, noteUpdateModel);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
     }
 }

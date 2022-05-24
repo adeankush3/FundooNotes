@@ -12,6 +12,7 @@ namespace ReposatoryLayer.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int LabelId { get; set; }
         public string LabelName { get; set; }
+       
         public int? Userid { get; set; }
         public virtual User user { get; set; }
 

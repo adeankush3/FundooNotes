@@ -10,6 +10,7 @@ using ReposatoryLayer.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace FundooNotes.Controllers
@@ -18,20 +19,22 @@ namespace FundooNotes.Controllers
     [Route("[controller]")]
     public class NoteController : ControllerBase
     {
-        
+        //Fields
         FundooContext fundooContext;
         INoteBL noteBL;
-
         private readonly IDistributedCache distributedCache;
         private readonly IMemoryCache memoryCache;
 
         // constructor
-        public NoteController(FundooContext fundoo, INoteBL noteBL)
+        public NoteController(FundooContext fundoo, INoteBL noteBL, IDistributedCache distributedCache, IMemoryCache memoryCache)
         {
             this.fundooContext = fundoo;
             this.noteBL = noteBL;
-        }       
-        // Add Notes
+            this.distributedCache = distributedCache;
+            this.memoryCache = memoryCache;
+        }
+
+
         [Authorize]
         [HttpPost("AddNote")]
         public async Task<ActionResult> AddUser(NotesPostModel notesPostModel)
@@ -42,14 +45,15 @@ namespace FundooNotes.Controllers
                 int userId = Int32.Parse(userid.Value);
                 await this.noteBL.AddNote(notesPostModel, userId);
 
-                return this.Ok(new { success = true, message = $"Notes Added Successfully" });
+                return this.Ok(new { success = true, message = $"Note Added Successfully" });
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
-       //Update Notes
+
+ 
         [Authorize]
         [HttpPut("Update/{noteId}")]
         public async Task<ActionResult> UpdateNote(int noteId, NoteUpdateModel noteUpdateModel)
@@ -62,8 +66,9 @@ namespace FundooNotes.Controllers
                 var note = fundooContext.Notes.FirstOrDefault(u => u.Userid == UserId && u.NoteID == noteId);
                 if (note == null)
                 {
-                    return this.BadRequest(new { success = false, message = "Failed to Update note" });
+                    return this.BadRequest(new { success = false, message = " Sorry!!! Failed to Update note" });
                 }
+                
                 await this.noteBL.UpdateNote(UserId, noteId, noteUpdateModel);
                 return this.Ok(new { success = true, message = "Note Updated successfully!!!" });
             }
@@ -72,8 +77,9 @@ namespace FundooNotes.Controllers
 
                 throw ex;
             }
-        }      
-        //Delete the Notes      
+        }
+
+ 
         [Authorize]
         [HttpDelete("Delete/{noteId}")]
         public async Task<ActionResult> DeleteNote(int noteId)
@@ -85,9 +91,10 @@ namespace FundooNotes.Controllers
                 var note = fundooContext.Notes.FirstOrDefault(u => u.Userid == UserId && u.NoteID == noteId);
                 if (note == null)
                 {
-                    return this.BadRequest(new { success = false, message = "This note is not available " });
+                    return this.BadRequest(new { success = false, message = "Oops!! This note is not available" });
 
                 }
+
                 await this.noteBL.DeleteNote(noteId, UserId);
                 return this.Ok(new { success = true, message = "Note Deleted Successfully" });
             }
@@ -96,8 +103,9 @@ namespace FundooNotes.Controllers
 
                 throw ex;
             }
-        }     
-        //Change colour of the Notes        
+        }
+
+ 
         [Authorize]
         [HttpPut("ChangeColour/{noteId}/{colour}")]
         public async Task<ActionResult> ChangeColour(int noteId, string colour)
@@ -110,7 +118,11 @@ namespace FundooNotes.Controllers
                 var note = fundooContext.Notes.FirstOrDefault(u => u.Userid == UserId && u.NoteID == noteId);
                 if (note == null)
                 {
-                    return this.BadRequest(new { success = false, message = "Sorry! Note does not exist" });
+                    return this.BadRequest(new { success = false, message = "Sorry!!! Note does not exist" });
+                }
+                if (note.IsTrash == true)
+                {
+                    return this.BadRequest(new { success = false, message = "sorry!! Note Already deleted, please create new note" });
                 }
 
                 await this.noteBL.ChangeColour(UserId, noteId, colour);
@@ -121,8 +133,9 @@ namespace FundooNotes.Controllers
 
                 throw ex;
             }
-        }      
-        // Archive Notes       
+        }
+
+ 
         [Authorize]
         [HttpPut("ArchiveNote/{noteId}")]
         public async Task<ActionResult> IsArchieveNote(int noteId)
@@ -135,7 +148,11 @@ namespace FundooNotes.Controllers
                 var note = fundooContext.Notes.FirstOrDefault(u => u.Userid == userId && u.NoteID == noteId);
                 if (note == null)
                 {
-                    return this.BadRequest(new { success = false, message = "Failed or Id does not exists" });
+                    return this.BadRequest(new { success = false, message = " Sorry !!! Failed to archieve notes" });
+                }
+                if (note.IsTrash == true)
+                {
+                    return this.BadRequest(new { success = false, message = "sorry!! Note has been deleted, please create new note" });
                 }
                 await this.noteBL.ArchiveNote(userId, noteId);
                 return this.Ok(new { success = true, message = "Note Archieved successfully" });
@@ -145,7 +162,8 @@ namespace FundooNotes.Controllers
                 throw ex;
             }
         }
-        //Remainder Notes
+
+ 
         [Authorize]
         [HttpPut("remainderNote/{noteId}/{remainder}")]
         public async Task<ActionResult> RemainderNote(int noteId, DateTime remainder)
@@ -160,6 +178,11 @@ namespace FundooNotes.Controllers
                 {
                     return this.BadRequest(new { success = false, message = "Sorry !! Note does't Exist" });
                 }
+                if (note.IsTrash == true)
+                {
+                    return this.BadRequest(new { success = false, message = "sorry!! Note has been deleted, please create new note" });
+                }
+
                 await this.noteBL.Remainder(userId, noteId, remainder);
                 return this.Ok(new { success = true, message = "Remainder Sets Successfully!!!" });
             }
@@ -167,8 +190,9 @@ namespace FundooNotes.Controllers
             {
                 throw ex;
             }
-        }      
-        // Trash Notes     
+        }
+
+
         [Authorize]
         [HttpPut("Trash/{noteId}")]
         public async Task<ActionResult> IsTrash(int noteId)
@@ -183,6 +207,10 @@ namespace FundooNotes.Controllers
                 {
                     return this.BadRequest(new { success = false, message = " Sorry!!! Failed to Trash Note" });
                 }
+                if (note.IsTrash == true)
+                {
+                    return this.BadRequest(new { success = false, message = "sorry!! Note has been deleted, please create new note" });
+                }
                 await this.noteBL.Trash(userId, noteId);
                 return this.Ok(new { success = true, message = "Trash added successfully!!!" });
             }
@@ -191,8 +219,9 @@ namespace FundooNotes.Controllers
                 throw ex;
             }
 
-        }   
-        // Pin notes        
+        }
+
+ 
         [Authorize]
         [HttpPut("Pin/{noteId}")]
         public async Task<ActionResult> IsPin(int noteId)
@@ -203,9 +232,14 @@ namespace FundooNotes.Controllers
                 int userId = Int32.Parse(userid.Value);
 
                 var note = fundooContext.Notes.FirstOrDefault(u => u.Userid == userId && u.NoteID == noteId);
+
                 if (note == null)
                 {
                     return this.BadRequest(new { success = false, message = " Sorry!!! Failed to Pin note" });
+                }
+                if (note.IsTrash == true)
+                {
+                    return this.BadRequest(new { success = false, message = "sorry!! Note has been deleted, please create new note" });
                 }
                 await this.noteBL.Pin(userId, noteId);
                 return this.Ok(new { success = true, message = "Pin Added successfully!!!" });
@@ -214,9 +248,10 @@ namespace FundooNotes.Controllers
             {
                 throw ex;
             }
+
         }
-        // Get All notes
-       
+
+ 
         [Authorize]
         [HttpGet("GetAllNotes")]
         public async Task<ActionResult> GetAllNotes()
@@ -228,6 +263,43 @@ namespace FundooNotes.Controllers
                 List<Note> result = new List<Note>();
                 result = await this.noteBL.GetAllNotes(userId);
                 return this.Ok(new { success = true, message = $"Here is your all Notes", data = result });
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        [Authorize]
+        [HttpGet("GetAllNotesByRedis")]
+        public async Task<ActionResult> GetAllNotesUsingRedisCache()
+        {
+            try
+            {
+                string key = "NotesList";
+                string serializedNoteList;
+                var noteList = new List<Note>();
+                var redisNoteList = await distributedCache.GetAsync(key);
+                if (redisNoteList != null)
+                {
+
+                    serializedNoteList = Encoding.UTF8.GetString(redisNoteList);
+                    noteList = JsonConvert.DeserializeObject<List<Note>>(serializedNoteList);
+                }
+                else
+                {
+                    var userid = User.Claims.FirstOrDefault(x => x.Type.ToString().Equals("userID", StringComparison.InvariantCultureIgnoreCase));
+                    int userId = Int32.Parse(userid.Value);
+                    noteList = await this.noteBL.GetAllNotes(userId);
+                    serializedNoteList = JsonConvert.SerializeObject(noteList);
+                    redisNoteList = Encoding.UTF8.GetBytes(serializedNoteList);
+                    var option = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(20)).SetAbsoluteExpiration(TimeSpan.FromHours(6));
+                    await distributedCache.SetAsync(key, redisNoteList, option);
+
+                }
+                return this.Ok(new { success = true, message = $"Get all Notes Successfully Fetch", Data = noteList });
 
             }
             catch (Exception ex)

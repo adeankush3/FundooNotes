@@ -48,12 +48,12 @@ namespace FundooNotes.Controllers
                 string Password = StringCipher.DecodeFrom64(userdata.Password);
                 if (userdata == null)
                 {
-                    return this.BadRequest(new { success = false, message = $"Email-ID and Password is incorrect" });
+                    return this.BadRequest(new { success = false, message = $"email and password is invalid" });
 
                 }
 
                 string result = this.userBL.LoginUser(email, Password);
-                return this.Ok(new { success = true, message = $"Login Successfull {result}", Token = result });
+                return this.Ok(new { success = true, message = "login successfull", Token = result });
 
             }
             catch (Exception ex)
@@ -62,6 +62,7 @@ namespace FundooNotes.Controllers
                 throw ex;
             }
         }
+
         [HttpPost("ForgotPassword/{email}")]
         public ActionResult ForgotPassword(string email)
         {
@@ -74,11 +75,11 @@ namespace FundooNotes.Controllers
 
                     {
                         success = true,
-                        message = $"Mail Send Sucessfully" + $"token: {Result}"
+                        message = $"mail sent sucessfully" + $"token: {Result}"
                     });
                 }
 
-                return this.BadRequest(new { success = false, message = $"Mail not Send" });
+                return this.BadRequest(new { success = false, message = $"mail not sent" });
             }
             catch (Exception ex)
             {
@@ -98,8 +99,8 @@ namespace FundooNotes.Controllers
                 int UserID = Int32.Parse(userid.Value);
                 var result = fundooContext.Users.Where(u => u.Userid == UserID).FirstOrDefault();
                 string Email = result.Email.ToString();
-                //Change Passwaord
-                bool res = userBL.ChangePassword(Email, changePassward);
+
+                bool res = userBL.ChangePassword(Email, changePassward);//email.changepass
                 if (res == false)
                 {
                     return this.BadRequest(new { success = false, message = "Enter Valid Password" });

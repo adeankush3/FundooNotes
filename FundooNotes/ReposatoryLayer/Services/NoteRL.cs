@@ -14,14 +14,13 @@ namespace ReposatoryLayer.Services
 {
     public class NoteRL : INoteRL
     {
-        FundooContext fundoo;
+        FundooContext fundoo; // used field here
         public IConfiguration Configuration { get; }
         public NoteRL(FundooContext fundooContext, IConfiguration configuration)
         {
             this.fundoo = fundooContext;
             this.Configuration = configuration;
         }
-        //Add Note
         public async Task AddNote(NotesPostModel notesPostModel, int Userid)
         {
             try
@@ -46,7 +45,7 @@ namespace ReposatoryLayer.Services
                 throw ex;
             }
         }
-        //UpdateNote
+
         public async Task<Note> UpdateNote(int userId, int noteId, NoteUpdateModel noteUpdateModel)
         {
             try
@@ -67,14 +66,14 @@ namespace ReposatoryLayer.Services
                 return await fundoo.Notes.Where(u => u.Userid == u.Userid && u.NoteID == noteId).Include(u => u.user).FirstOrDefaultAsync();
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
-                throw;
+                throw ex;
             }
         }
 
-        //Delete Note
+        //deleting the notes
         public async Task DeleteNote(int noteId, int userId)
         {
 
@@ -96,7 +95,7 @@ namespace ReposatoryLayer.Services
                 throw ex;
             }
         }
-        // Change Colour
+        // change colour
         public async Task ChangeColour(int userId, int noteId, string color)
         {
 
@@ -109,13 +108,13 @@ namespace ReposatoryLayer.Services
                     await fundoo.SaveChangesAsync();
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
-                throw;
+                throw ex;
             }
         }
-        //Archive Note
+
         public async Task ArchiveNote(int userId, int noteId)
         {
 
@@ -138,12 +137,13 @@ namespace ReposatoryLayer.Services
                 await fundoo.SaveChangesAsync();
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
-                throw;
+                throw ex;
             }
         }
+
         public async Task Remainder(int userId, int noteId, DateTime remainder)
         {
 
@@ -157,12 +157,13 @@ namespace ReposatoryLayer.Services
                 }
                 await fundoo.SaveChangesAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
-                throw;
+                throw ex;
             }
         }
+
         public async Task Trash(int userId, int noteId)
         {
             try

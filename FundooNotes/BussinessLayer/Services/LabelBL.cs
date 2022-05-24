@@ -28,7 +28,19 @@ namespace BussinessLayer.Services
                 throw ex;
             }
         }
-        
+
+        public async Task DeleteLabel(int labelId, int userId)
+        {
+            try
+            {
+                await this.labelRL.DeleteLabel(labelId, userId);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public async Task<List<Labels>> GetLabelByNoteId(int userId, int noteId)
         {
             try
@@ -67,17 +79,6 @@ namespace BussinessLayer.Services
                 throw ex;
             }
 
-        }
-        public async Task DeleteLabel(int labelId, int userId)
-        {
-            try
-            {
-                await this.labelRL.DeleteLabel(labelId, userId);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
         }
     }
 }

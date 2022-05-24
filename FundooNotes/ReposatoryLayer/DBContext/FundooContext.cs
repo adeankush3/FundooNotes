@@ -18,8 +18,7 @@ namespace ReposatoryLayer.DBContext
         public DbSet<Note> Notes { get; set; }
         public DbSet<Labels> labels { get; set; }
 
-
-        //Unique EmailId
+        //method to used unique EmailId
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>()

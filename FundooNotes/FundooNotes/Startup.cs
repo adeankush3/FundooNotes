@@ -25,6 +25,7 @@ namespace FundooNotes
 {
     public class Startup
     {
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -35,7 +36,7 @@ namespace FundooNotes
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
+            services.AddControllers();
             services.AddMemoryCache();
             services.AddDistributedRedisCache(
                options =>
@@ -43,13 +44,10 @@ namespace FundooNotes
                    options.Configuration = "Localhost:6379";
                });
             services.AddControllers();
-
-
             services.AddDbContext<FundooContext>(opts => opts.UseSqlServer(Configuration["ConnectionStrings:FundooNotes"]));
-           
             services.AddTransient<IUserBL, UserBL>();
             services.AddTransient<IUserRL, UserRL>();
-            
+
             services.AddTransient<INoteBL, NoteBL>();
             services.AddTransient<INoteRL, NoteRL>();
 
@@ -57,6 +55,7 @@ namespace FundooNotes
             services.AddTransient<ILabelRL, LabelRL>();
 
             services.AddDbContext<FundooContext>(opts => opts.UseSqlServer(Configuration["ConnectionStrings:FundooDataBase"]));
+
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

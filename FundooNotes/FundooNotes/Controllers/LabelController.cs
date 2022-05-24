@@ -23,22 +23,25 @@ namespace FundooNotes.Controllers
             this.labelBL = labelBL;
         }
 
-        [HttpPost("AddLabel/{userId}/{noteId}/{labelName}")]
-        public async Task<ActionResult> AddLabel(int userId, int noteId, string labelName)
+
+        [Authorize]
+        [HttpPost("AddLabel/{noteId}/{labelName}")]
+        public async Task<ActionResult> AddLabel(int noteId, string labelName)
         {
             try
             {
-                await this.labelBL.AddLabel(userId, noteId, labelName);
-                return this.Ok(new { success = true, message = "Label Added Successfully" });
-
+                var userid = User.Claims.FirstOrDefault(x => x.Type.ToString().Equals("UserID", StringComparison.InvariantCultureIgnoreCase));
+                int userID = Int32.Parse(userid.Value);
+                await this.labelBL.AddLabel(userID, noteId, labelName);
+                return this.Ok(new { success = true, message = "Lable Added Successfully " });
             }
             catch (System.Exception ex)
             {
-
                 throw ex;
             }
         }
-       
+
+ 
         [Authorize]
         [HttpGet("GetLabelByuserId/{userId}")]
         public async Task<ActionResult> GetLabelByuserId()

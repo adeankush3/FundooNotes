@@ -1,7 +1,7 @@
 ﻿using DataBaseLayer.Users;
-using Experimental.System.Messaging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using MSMQ.Messaging;
 using ReposatoryLayer.DBContext;
 using ReposatoryLayer.Entities;
 using ReposatoryLayer.Interfaces;
@@ -13,14 +13,11 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 
-
-
-
 namespace ReposatoryLayer.Services
 {
     public class UserRL : IUserRL
     {
-        FundooContext fundoo; 
+        FundooContext fundoo;
         public IConfiguration Configuration { get; }
 
 
@@ -29,19 +26,21 @@ namespace ReposatoryLayer.Services
             this.fundoo = fundoo;
             this.Configuration = configuration;
         }
-       
-        //Add User
-        
+        /// <summary>
+        /// Used method of Add user
+        /// </summary>
+        /// <param name="user"></param>
         public void AddUser(UserModel user)
         {
             try
             {
-                User userdata = new User();
+                User userdata = new User(); //Created instance of User class
                 userdata.FirstName = user.FirstName;
                 userdata.Lastname = user.Lastname;
                 userdata.Email = user.Email;
                 userdata.Password = StringCipher.EncodePasswordToBase64(user.Password);
                 userdata.Address = user.Address;
+                userdata.CreatedDate = DateTime.Now;
                 fundoo.Add(userdata);
                 fundoo.SaveChanges();
 
@@ -52,7 +51,12 @@ namespace ReposatoryLayer.Services
             }
         }
 
-        //Login User
+        /// <summary>
+        /// used method of Login user
+        /// </summary>
+        /// <param name="email"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
         public string LoginUser(string email, string password)
         {
 
@@ -97,7 +101,7 @@ namespace ReposatoryLayer.Services
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
-        //Forgot PassWord
+
         public bool ForgotPassword(string email)
         {
             try
@@ -158,7 +162,7 @@ namespace ReposatoryLayer.Services
                 }
             }
         }
-        //Generate Token
+
         public string GenerateToken(string email)
         {
             if (email == null)
@@ -185,7 +189,7 @@ namespace ReposatoryLayer.Services
         }
 
 
-        //Method to Encode the Password
+        //method to encode the password
 
         public static string EncryptPassword(string password)
         {
@@ -211,7 +215,7 @@ namespace ReposatoryLayer.Services
             }
         }
 
-        //Change Password
+
         public bool ChangePassword(string Email, ChangePasswardModel changePassward)
         {
             try

@@ -6,6 +6,7 @@ using ReposatoryLayer.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,7 +14,7 @@ namespace ReposatoryLayer.Services
 {
     public class LabelRL : ILabelRL
     {
-        FundooContext fundoo; 
+        FundooContext fundoo; // used field here
         public IConfiguration Configuration { get; }
         public LabelRL(FundooContext fundooContext, IConfiguration configuration)
         {
@@ -39,6 +40,7 @@ namespace ReposatoryLayer.Services
                 throw ex;
             }
         }
+
         public async Task<List<Labels>> GetLabelByuserId(int userId)
         {
             try
